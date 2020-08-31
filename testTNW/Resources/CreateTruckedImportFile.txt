@@ -1,0 +1,20 @@
+IF OBJECT_ID(N'[MNP].[dbo].[TRUCKED]', N'U') IS NOT NULL
+	DROP TABLE [MNP].[dbo].[TRUCKED];
+
+create table [MNP].[dbo].[TRUCKED] 
+(
+[IDCUST] [char](12),
+[OLDACC] [varchar](20),
+[CONSUMPTION] [decimal](9, 0),
+[MONTH] tinyint,
+[YEAR] smallint,
+[INVDESC] varchar(50) DEFAULT N'',
+[WATER] [varchar](20) DEFAULT N'',
+[GARBAGE] [varchar](20) DEFAULT N'',
+[COMMENT] varchar(500) DEFAULT '',
+[INTEREST] char(1) DEFAULT 'Y',
+[BALANCE] [decimal](15, 4) DEFAULT 0, 
+[MONTHLYBALANCE] [decimal](15, 4) DEFAULT 0,
+[MULTITOT] [decimal](9, 0),
+[AUDTDATE] date DEFAULT GETDATE()
+)

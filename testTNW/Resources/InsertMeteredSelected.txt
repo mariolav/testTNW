@@ -1,0 +1,7 @@
+delete from  [MNP].[dbo].[METEREDSELECTED];
+BEGIN TRAN;
+
+	Insert into [MNP].[dbo].[METEREDSELECTED] 
+	([IDCUST])
+	VALUES {0};
+COMMIT TRAN;

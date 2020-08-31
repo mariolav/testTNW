@@ -1,0 +1,12 @@
+UPDATE [dbo].[ARCUSO]
+   SET [VALUE] ={1} 
+WHERE [IDCUST]='{0}' and [OPTFIELD]='CURREAD';
+UPDATE [dbo].[ARCUSO]
+   SET [VALUE] ={2} 
+WHERE [IDCUST]='{0}' and [OPTFIELD]='PREREAD';
+UPDATE [dbo].[ARCUSO]
+   SET [VALUE] ='{3}' 
+WHERE [IDCUST]='{0}' and [OPTFIELD]='METER';
+
+
+

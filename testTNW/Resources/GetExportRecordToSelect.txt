@@ -1,0 +1,24 @@
+
+SELECT {0} [Sel]
+,trim([S].[IDCUST]) [IDCUST]
+	  ,trim([SO6].[VALUE]) [OLDACC]
+      ,trim([S].[NAMECUST]) [CustName]
+      ,trim([S].[TEXTSTRE1]) [Address1]
+      ,trim([S].[TEXTSTRE2]) [Address2]
+      ,trim([S].[TEXTSTRE4]) [Address4]
+      ,trim([S].[NAMECITY]) [City]
+      ,trim([S].[CODESTTE]) [Prov]
+      ,trim([S].[CODEPSTL]) [PCode]
+	  ,trim([SO7].[VALUE]) [Water]
+	  ,trim([SO8].[VALUE]) [Garbage]
+	  ,trim([SO3].[VALUE]) [Meter]
+ 
+from [dbo].[ARCUS] [S] 
+inner join [dbo].[ARCUSO] [SO2] on [SO2].[IDCUST]=[S].[IDCUST] and [SO2].OPTFIELD='WALK'
+inner join [dbo].[ARCUSO] [SO3] on [SO3].[IDCUST]=[S].[IDCUST] and [SO3].OPTFIELD='METER'
+inner join [dbo].[ARCUSO] [SO4] on [SO4].[IDCUST]=[S].[IDCUST] and [SO4].OPTFIELD='CURREAD'
+inner join [dbo].[ARCUSO] [SO5] on [SO5].[IDCUST]=[S].[IDCUST] and [SO5].OPTFIELD='PREREAD'
+inner join [dbo].[ARCUSO] [SO6] on [SO6].[IDCUST]=[S].[IDCUST] and [SO6].OPTFIELD='OLDACC'
+inner join [dbo].[ARCUSO] [SO7] on [SO7].[IDCUST]=[S].[IDCUST] and [SO7].OPTFIELD='WATER'
+inner join [dbo].[ARCUSO] [SO8] on [SO8].[IDCUST]=[S].[IDCUST] and [SO8].OPTFIELD='GARBAGE'
+where [S].[SWACTV]=1 and [S].[IDGRP]='UT' and [S].[IDCUST] like '{1}%'

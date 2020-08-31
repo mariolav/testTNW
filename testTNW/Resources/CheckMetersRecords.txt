@@ -1,0 +1,18 @@
+select rTrim([S].[IDCUST]) + ' - ' +rtrim([NAMECUST]) from [dbo].[ARCUS] [S]
+inner JOIN [dbo].[ARCUSO] [SO2] on [SO2].[IDCUST]=[S].[IDCUST] and [SO2].OPTFIELD='WATER'
+where IDGRP='UT' and SWACTV=1 
+and 
+(
+[S].[IDCUST] not in (Select IDCUST from [dbo].[ARCUSO] where OPTFIELD='METER' and VALUE<>'') 
+or
+[S].[IDCUST] not in (Select IDCUST from [dbo].[ARCUSO] where OPTFIELD='CURREAD' and VALUE<>'') 
+or
+[S].[IDCUST] not in (Select IDCUST from [dbo].[ARCUSO] where OPTFIELD='PREREAD' and VALUE<>'') 
+or
+[S].[IDCUST] not in (Select IDCUST from [dbo].[ARCUSO] where OPTFIELD='OLDACC' and VALUE<>'') 
+or 
+[S].[IDCUST] not in (Select IDCUST from [dbo].[ARCUSO] where OPTFIELD='WATER' and VALUE<>'') 
+or
+[S].[IDCUST] not in (Select IDCUST from [dbo].[ARCUSO] where OPTFIELD='GARBAGE' and VALUE<>'') 
+)
+and [SO2].[VALUE] like 'WM%'

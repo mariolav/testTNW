@@ -1,0 +1,15 @@
+IF OBJECT_ID(N'[MNP].[dbo].[TRUCKEDBAD]', N'U') IS NOT NULL
+	DROP TABLE [MNP].[dbo].[TRUCKEDBAD];
+
+create table [MNP].[dbo].[TRUCKEDBAD] 
+(
+[IDCUST] [char](12),
+[OLDACC] [varchar](20),
+[CONSUMPTION] [decimal](9, 0),
+[MONTH] tinyint,
+[YEAR] smallint,
+[WATER] [varchar](20) DEFAULT N'',
+[GARBAGE] [varchar](20) DEFAULT N'',
+[COMMENT] varchar(500) DEFAULT '',
+[AUDTDATE] date DEFAULT GETDATE()
+)

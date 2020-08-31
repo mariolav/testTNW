@@ -1,0 +1,7 @@
+IF OBJECT_ID(N'[MNP].[dbo].[PENALTYOTHERS]', N'U') IS NOT NULL
+	DROP TABLE [MNP].[dbo].[PENALTYOTHERS];
+
+create table [MNP].[dbo].[PENALTYOTHERS] 
+(
+[IDCUST] [char](12)
+)

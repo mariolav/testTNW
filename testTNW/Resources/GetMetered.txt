@@ -1,0 +1,25 @@
+SELECT [IDCUST]
+      ,[OLDACC]
+      ,[METER]
+      ,[ACTREAD]
+      ,[PREREAD]
+      ,[DATEREAD]
+	  ,[MONTH]
+	  ,[YEAR]
+--	  ,month(DATEADD(month, DATEDIFF(month,0,substring([DATEREAD],1,2)+'-'+substring([DATEREAD],3,2)+'-'+substring([DATEREAD],5,2)), -1)) [MONTH]
+--	  ,year(DATEADD(month, DATEDIFF(month,0,substring([DATEREAD],1,2)+'-'+substring([DATEREAD],3,2)+'-'+substring([DATEREAD],5,2)), -1)) [YEAR]
+      ,[TIMEREAD]
+      ,[WATER]
+      ,[GARBAGE]
+	  ,[INTEREST]
+	  ,[MULTITOT]
+	  ,[BALANCE]
+	  ,[MONTHLYBALANCE]
+      ,[AUDTDATE]
+  FROM [MNP].[dbo].[METERED] [M]
+  where isnull([COMMENT],'')=''
+  AND [M].[IDCUST] NOT IN
+  (
+  SELECT [IDCUST] FROM [DBO].[ARCUSO] WHERE [OPTFIELD]='ACTIVE' AND [VALUE]='N'
+  )
+  order by [IDCUST]

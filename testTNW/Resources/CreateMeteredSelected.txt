@@ -1,0 +1,7 @@
+IF OBJECT_ID(N'[MNP].[dbo].[METEREDSELECTED]', N'U') IS NOT NULL
+	DROP TABLE [MNP].[dbo].[METEREDSELECTED];
+
+create table [MNP].[dbo].[METEREDSELECTED] 
+(
+[IDCUST] [char](12),
+)

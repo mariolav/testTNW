@@ -1,0 +1,38 @@
+declare @datemax as decimal
+declare @month as varchar(2)
+declare @year as varchar(4)
+select @month='{0}'
+select @year='{1}'
+select @datemax=CAST(REPLACE(EOMONTH(@year+'-'+@month+'-01'),'-','') AS DECIMAL(9,0)) 
+
+select [IDCUST],[BALANCE],@month [MONTH],@year [YEAR]  from
+(
+select [AR].[IDCUST]
+,[BL].[Balance] 
+from [dbo].[ARCUS] [AR] 
+inner join
+(
+	SELECT [IDCUST], (sum([AMTINVCHC])) [Balance]
+	  FROM [dbo].[AROBL]
+	  where 
+	  [DATEINVC]<@datemax
+	   
+	  group by [IDCUST]
+	 ) [BL]
+	 on [BL].[IDCUST]=[AR].[IDCUST] and [BL].[BALANCE]>0 and [AR].[IDGRP] ='UT'
+	 where [AR].[SWACTV]=1 
+	 ) [TOT]
+
+where [TOT].[IDCUST] not in
+(
+select [IDCUST] from [MNP].[dbo].[METERED]
+union 
+select [IDCUST] from [MNP].[dbo].[TRUCKED]
+union 
+select [IDCUST] from [MNP].[dbo].[METEREDSELECTED]
+UNION
+SELECT [IDCUST] FROM [DBO].[ARCUSO] WHERE [OPTFIELD]='INT' AND [VALUE]='N'
+UNION
+SELECT [IDCUST] FROM [DBO].[ARCUSO] WHERE [OPTFIELD]='ACTIVE' AND [VALUE]='N'
+)
+order by [TOT].[IDCUST]

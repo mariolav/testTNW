@@ -1,0 +1,1 @@
+Select * FROM [MNP].[dbo].[TRUCKED] where isnull([COMMENT],'')=''  order by [IDCUST]

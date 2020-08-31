@@ -1,0 +1,145 @@
+declare @datemax as decimal
+declare @datemin as decimal
+--  Delete all records
+delete from  [MNP].[dbo].[METERED];
+--delete from  [MNP].[dbo].[METEREDBAD];
+BEGIN TRAN;
+
+	Insert into [MNP].[dbo].[METERED] 
+	([IDCUST]
+				,[OLDACC]
+				,[METER]
+				,[ACTREAD]
+				,[PREREAD]
+				,[DATEREAD]
+				,[TIMEREAD]
+			  )
+	VALUES
+	{0};
+
+	-- Update new ID
+	update [M]
+	set
+		[M].IDCUST=[SO].[IDCUST]
+	From [MNP].[dbo].[METERED] [M] 
+	inner join [dbo].[ARCUSO] [SO] on [SO].OPTFIELD='OLDACC' and [SO].[VALUE]=[M].[OLDACC]
+	inner join [dbo].[ARCUS] [S] on  [S].[IDCUST]=[SO].[IDCUST] and [S].[IDGRP]='UT' and [S].[IDCUST]<>[S].[IDNATACCT];
+	-- Update Garbage and Water
+	update [M]
+	set
+		[M].WATER=upper([SOW].[VALUE])
+	From [MNP].[dbo].[METERED] [M]
+	inner join [dbo].[ARCUSO] [SOW] on [SOW].[IDCUST]=[M].[IDCUST] and [SOW].OPTFIELD='WATER'
+
+	update [M]
+	set
+		[M].GARBAGE=upper([SOG].[VALUE])
+	From [MNP].[dbo].[METERED] [M]
+	inner join [dbo].[ARCUSO] [SOG] on [SOG].[IDCUST]=[M].[IDCUST] and [SOG].OPTFIELD='GARBAGE'
+	--uPDATE MONTH
+	update [M]
+	set
+		[M].[MONTH]=month(DATEADD(month, DATEDIFF(month,0,substring([DATEREAD],1,2)+'-'+substring([DATEREAD],3,2)+'-'+substring([DATEREAD],5,2)), -1)),
+		[M].[YEAR]=year(DATEADD(month, DATEDIFF(month,0,substring([DATEREAD],1,2)+'-'+substring([DATEREAD],3,2)+'-'+substring([DATEREAD],5,2)), -1))
+
+	From [MNP].[dbo].[METERED] [M]
+
+
+	select @datemax= 
+	(select max(CAST(REPLACE(EOMONTH(CAST([M].[YEAR] AS CHAR(4))+'-'+RIGHT('00'+TRIM(CAST([M].[MONTH] AS CHAR(2))),2)+'-01'),'-','') AS DECIMAL(9,0))) from [MNP].[dbo].[METERED] [M])
+	select @datemin= 
+	(select max(CAST(REPLACE(EOMONTH(CAST([M].[YEAR] AS CHAR(4))+'-'+RIGHT('00'+TRIM(CAST([M].[MONTH]-1 AS CHAR(2))),2)+'-01'),'-','') AS DECIMAL(9,0))) from [MNP].[dbo].[METERED] [M])
+--	(select max(CAST(REPLACE(CAST([M].[YEAR] AS CHAR(4))+'-'+RIGHT('00'+TRIM(CAST([M].[MONTH] AS CHAR(2))),2)+'-01','-','') AS DECIMAL(9,0))) from [MNP].[dbo].[METERED]  [M])
+
+	--*****************************************************************************
+	-- Update balance
+	update [M]
+	set
+		[M].BALANCE=[BL].[BALANCE]
+	From [MNP].[dbo].[METERED] [M]
+	inner join
+	(
+	SELECT [IDCUST], (sum([AMTINVCHC])) [Balance]
+	  FROM [dbo].[AROBL]
+	  where 
+	  [DATEINVC]<@datemax
+	  and IDGRP ='UT' 
+	  group by [IDCUST]
+	 ) [BL]
+	 on [BL].[IDCUST]=[M].[IDCUST] ;
+--	 on [BL].[IDCUST]=[M].[IDCUST] and [BL].[BALANCE]>0;
+	--*****************************************************************************
+
+
+
+	--*****************************************************************************
+	-- Update MONTHLY balance
+	update [M]
+	set
+		[M].MONTHLYBALANCE=[BL].[BALANCE]
+	From [MNP].[dbo].[METERED] [M]
+	inner join
+	(
+
+	SELECT [IDCUST], (sum([AMTINVCHC])) [Balance]
+	  FROM [dbo].[AROBL]
+	  where 
+	  [DATEINVC] >= @datemin and [DATEINVC]  <@datemax
+	  and IDGRP ='UT' 
+	  group by [IDCUST]
+
+	 ) [BL]
+	 on [BL].[IDCUST]=[M].[IDCUST] ;
+--	 on [BL].[IDCUST]=[M].[IDCUST] and [BL].[BALANCE]>0;
+	--*****************************************************************************
+
+
+	--*****************************************************************************
+	-- Update interest
+	update [M]
+	set
+		[M].[INTEREST]=[SO].[VALUE]
+	From [MNP].[dbo].[METERED] [M]
+	inner join [dbo].[ARCUSO] [SO] on [SO].[IDCUST]=[M].[IDCUST] and  [SO].[OPTFIELD]='INT';
+	--*****************************************************************************
+
+	-- Update MULTITOT
+	update [M]
+	set
+		[M].[MULTITOT]=[M2].[TOTAL]
+	From [MNP].[dbo].[METERED] [M]
+	inner join 
+	(select [IDCUST],SUM([ACTREAD]-[PREREAD]) [TOTAL] From [MNP].[dbo].[METERED] GROUP BY [IDCUST] )[M2]
+	on [M2].[IDCUST] =[M].[IDCUST] and [M].[IDCUST]<>'' 
+	--*****************************************************************************
+
+
+	update [MNP].[dbo].[METERED]
+	set [COMMENT]='No IDCUST or WATER and GARBAGE '
+	where IDCUST='' or (WATER='' and GARBAGE='');
+
+	update [MNP].[dbo].[METERED]
+	set [COMMENT]=iif([COMMENT]='','',[COMMENT]+' - ')+'Bad Reading, Consumption < 0'
+	where ((ACTREAD-PREREAD)<0);
+
+	update [MNP].[dbo].[METERED]
+	set [COMMENT]=iif([COMMENT]='','',[COMMENT]+' - ')+'Item for WATER: ('+rtrim([WATER])+') not found or blank'
+	where (isnull(WATER,'')='') or (isnull(WATER,'') not in (select [IDITEM] from  [dbo].[ARITH]));
+
+	update [MNP].[dbo].[METERED]
+	set [COMMENT]=iif([COMMENT]='','',[COMMENT]+' - ')+'Item for GARBAGE: ('+rtrim([GARBAGE])+') not found or blank'
+	where (isnull(GARBAGE,'')='') or (isnull(GARBAGE,'') not in (select [IDITEM] from  [dbo].[ARITH]));
+
+	update [MNP].[dbo].[METERED]
+	set [COMMENT]=iif([COMMENT]='','',[COMMENT]+' - ')+'*** Customer is inactive ***'
+	where IDCUST<>'' and IDCUST not in (select [IDCUST] from  [dbo].[ARCUS] where [SWACTV]=1 );
+
+	update [MNP].[dbo].[METERED]
+	set [COMMENT]='Customer marked as ACTIVE=N (Opt Field)'
+	where IDCUST<>'' and IDCUST  IN
+	(
+	SELECT [IDCUST] FROM [DBO].[ARCUSO]  WHERE [OPTFIELD]='ACTIVE' AND [VALUE]='N'
+	)
+
+COMMIT TRAN;
+

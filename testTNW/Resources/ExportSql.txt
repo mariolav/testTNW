@@ -1,0 +1,44 @@
+Select 
+--LEFT(trim([SO1].[VALUE]) + REPLICATE(' ',10),10)+
+LEFT('1' + REPLICATE(' ',10),10)+
+'0000'+
+RIGHT('000'+ cast(ROW_NUMBER() OVER(ORDER BY SUBSTRING([S].TEXTSTRE4,CHARINDEX(' ',[S].TEXTSTRE4,1),99),
+	RIGHT(REPLICATE('0',10)+LEFT([S].TEXTSTRE4, PATINDEX('%[^0-9]%', [S].TEXTSTRE4 + 't') - 1),10)) as nvarchar(4)) ,4)+
+--RIGHT('000'+trim([SO2].[VALUE]),4)+
+'00'+
+REPLICATE(' ',7)+
+'5'+
+LEFT(trim([SO3].[VALUE]) + REPLICATE(' ',13),13)+
+REPLICATE(' ',26)+
+'0'+
+REPLICATE(' ',64)+
+'EUZ'+
+REPLICATE(' ',27)+
+--RIGHT(REPLICATE('0',10)+trim([SO4].[VALUE]),10)+
+FORMAT(cast([SO4].[VALUE] as int), '0000000.00')+ 
+REPLICATE(' ',6)+
+LEFT(trim([S].[TEXTSTRE4] Collate SQL_Latin1_General_CP1253_CI_AI ) + REPLICATE(' ',24),24)+
+REPLICATE(' ',24)+
+--LEFT(trim([SO5].[VALUE]) + REPLICATE(' ',24),24)+
+right(replicate(' ',24)+FORMAT(cast([SO5].[VALUE] as int), '0.00'),24)+
+LEFT(trim([S].[NAMECUST]  Collate SQL_Latin1_General_CP1253_CI_AI) + REPLICATE(' ',24),24)+
+REPLICATE(' ',168)+
+LEFT(trim([S].[IDCUST]) + REPLICATE(' ',24),24)+
+' '+
+LEFT(trim([SO6].[VALUE]) + REPLICATE(' ',40),40)
+--<<513>>+REPLICATE(' ',4) [LINE]   -- 509 0r 513
+
+from [dbo].[ARCUS] [S] 
+inner join [MNP].[dbo].[METEREDSELECTED] [SEL] on [SEL].[IDCUST]=[S].[IDCUST]
+inner join [dbo].[ARCUSO] [SO2] on [SO2].[IDCUST]=[S].[IDCUST] and [SO2].OPTFIELD='WALK'
+inner join [dbo].[ARCUSO] [SO3] on [SO3].[IDCUST]=[S].[IDCUST] and [SO3].OPTFIELD='METER'
+inner join [dbo].[ARCUSO] [SO4] on [SO4].[IDCUST]=[S].[IDCUST] and [SO4].OPTFIELD='CURREAD'
+inner join [dbo].[ARCUSO] [SO5] on [SO5].[IDCUST]=[S].[IDCUST] and [SO5].OPTFIELD='PREREAD'
+inner join [dbo].[ARCUSO] [SO6] on [SO6].[IDCUST]=[S].[IDCUST] and [SO6].OPTFIELD='OLDACC'
+inner join [dbo].[ARCUSO] [SO7] on [SO7].[IDCUST]=[S].[IDCUST] and [SO7].OPTFIELD='WATER'
+inner join [dbo].[ARCUSO] [SO8] on [SO8].[IDCUST]=[S].[IDCUST] and [SO8].OPTFIELD='GARBAGE'
+where [S].[SWACTV]=1 and [S].[IDGRP]='UT' and [S].[IDCUST]<>[S].[IDNATACCT]
+AND [S].[IDCUST] NOT IN
+  (
+  SELECT [IDCUST] FROM [DBO].[ARCUSO] WHERE [OPTFIELD]='ACTIVE' AND [VALUE]='N'
+  )

@@ -1,0 +1,1 @@
+SELECT FORMAT(([AMTPRICE]*100), 'N2') FROM [dbo].[ARITD] where iditem='LATEPMT'
