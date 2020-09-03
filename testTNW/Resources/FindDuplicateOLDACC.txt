@@ -1,0 +1,8 @@
+select [OLDACC] from
+(
+select 'Old Account Number (OLDACC):' + trim([VALUE]) + '  found more than once.'  [OLDACC],sum(1) [BAD] from [dbo].[ARCUSO] [SO]
+inner join [dbo].[ARCUS] [S] on [S].[IDCUST]=[SO].[IDCUST] and [S].[IDGRP]='UT' and [S].[IDCUST]<>[S].[IDNATACCT] 
+where [OPTFIELD]='OLDACC' 
+group by [VALUE]
+) [B]
+where [B].[BAD]>1

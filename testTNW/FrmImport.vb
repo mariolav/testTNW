@@ -60,6 +60,16 @@
             MsgBox(String.Format("File: {0} does not exist.", PsFolder & "\Waterimport.txt"), MsgBoxStyle.OkOnly, psTitle)
             Exit Sub
         End If
+        Dim LsCheck As String = getValueFromSQL(My.Resources.FindDuplicateOLDACC)
+        If LsCheck <> "" Then
+            MsgBox(LsCheck & vbCrLf & "Please fix!!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, psTitle)
+            Exit Sub
+        End If
+        LsCheck = getValueFromSQL(My.Resources.FindMissingOptFields)
+        If LsCheck <> "" Then
+            MsgBox(LsCheck & vbCrLf & "Please fix!!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, psTitle)
+            Exit Sub
+        End If
         pbIncludeMAF = CheckBoxMAF.Checked
         pbIncludeInterest = CheckBoxIncludeInterest.Checked
         ButtonsOnOff(False)
@@ -102,7 +112,7 @@
             If pbErrorFound Then
                 sqlExe("DELETE from [MNP].[dbo].[METERED]")
             End If
-            Dim LsCheck As String = FnCheckAll("METERED")
+            LsCheck = FnCheckAll("METERED")
             If LsCheck <> "" Then
                 MsgBox(LsCheck & "Please fix!!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, psTitle)
                 Exit Sub

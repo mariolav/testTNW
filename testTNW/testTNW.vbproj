@@ -280,6 +280,8 @@
     <None Include="Resources\InsertMeteredSelected.txt" />
     <None Include="Resources\CreatePenaltyOthers.txt" />
     <None Include="Resources\GetOtherPenalty.txt" />
+    <None Include="Resources\FindDuplicateOLDACC.txt" />
+    <None Include="Resources\FindMissingOptFields.txt" />
     <Content Include="Zoom.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />

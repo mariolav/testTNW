@@ -4,6 +4,12 @@
     End Sub
 
     Private Sub BtnImport_Click(sender As Object, e As EventArgs) Handles BtnImport.Click
+        Dim LsCheck As String = getValueFromSQL(My.Resources.FindMissingOptFields)
+        If LsCheck <> "" Then
+            MsgBox(LsCheck & vbCrLf & "Please fix!!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, psTitle)
+            Exit Sub
+        End If
+
         FrmMonthYear.ShowDialog()
 
         If PnYear + PnMonth <> 0 Then

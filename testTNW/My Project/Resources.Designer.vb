@@ -68,11 +68,11 @@ Namespace My.Resources
         '''(
         '''[S].[IDCUST] not in (Select IDCUST from [dbo].[ARCUSO] where OPTFIELD=&apos;METER&apos; and VALUE&lt;&gt;&apos;&apos;) 
         '''or
-        '''[S].[IDCUST] not in (Select IDCUST from [dbo].[ARCUSO] where OPTFIELD=&apos;WALK&apos; and VALUE&lt;&gt;&apos;&apos;) 
-        '''or
         '''[S].[IDCUST] not in (Select IDCUST from [dbo].[ARCUSO] where OPTFIELD=&apos;CURREAD&apos; and VALUE&lt;&gt;&apos;&apos;) 
         '''or
-        '''[S]. [rest of string was truncated]&quot;;.
+        '''[S].[IDCUST] not in (Select IDCUST from [dbo].[ARCUSO] where OPTFIELD=&apos;PREREAD&apos; and VALUE&lt;&gt;&apos;&apos;) 
+        '''or
+        '''[ [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property CheckMetersRecords() As String
             Get
@@ -152,7 +152,7 @@ Namespace My.Resources
         '''
         '''create table [MNP].[dbo].[PENALTYOTHERS] 
         '''(
-        '''[IDCUST] [char](12),
+        '''[IDCUST] [char](12)
         ''').
         '''</summary>
         Friend ReadOnly Property CreatePenaltyOthers() As String
@@ -201,8 +201,7 @@ Namespace My.Resources
         '''[COMMENT] varchar(500) DEFAULT &apos;&apos;,
         '''[INTEREST] char(1) DEFAULT &apos;Y&apos;,
         '''[BALANCE] [decimal](15, 4) DEFAULT 0, 
-        '''[MULTITOT] [decimal](9, 0),
-        '''[AUDTDATE] da [rest of string was truncated]&quot;;.
+        '''[MONTHLYBALANCE] [decimal](15, 4) DEFAULT  [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property CreateTruckedImportFile() As String
             Get
@@ -215,8 +214,8 @@ Namespace My.Resources
         '''--LEFT(trim([SO1].[VALUE]) + REPLICATE(&apos; &apos;,10),10)+
         '''LEFT(&apos;1&apos; + REPLICATE(&apos; &apos;,10),10)+
         '''&apos;0000&apos;+
-        '''RIGHT(&apos;000&apos;+ cast(ROW_NUMBER() OVER(ORDER BY SUBSTRING([S].TEXTSTRE2,CHARINDEX(&apos; &apos;,[S].TEXTSTRE2,1),99),
-        '''	RIGHT(REPLICATE(&apos;0&apos;,10)+LEFT([S].TEXTSTRE2, PATINDEX(&apos;%[^0-9]%&apos;, [S].TEXTSTRE2 + &apos;t&apos;) - 1),10)) as nvarchar(4)) ,4)+
+        '''RIGHT(&apos;000&apos;+ cast(ROW_NUMBER() OVER(ORDER BY SUBSTRING([S].TEXTSTRE4,CHARINDEX(&apos; &apos;,[S].TEXTSTRE4,1),99),
+        '''	RIGHT(REPLICATE(&apos;0&apos;,10)+LEFT([S].TEXTSTRE4, PATINDEX(&apos;%[^0-9]%&apos;, [S].TEXTSTRE4 + &apos;t&apos;) - 1),10)) as nvarchar(4)) ,4)+
         '''--RIGHT(&apos;000&apos;+trim([SO2].[VALUE]),4)+
         '''&apos;00&apos;+
         '''REPLICATE(&apos; &apos;,7)+
@@ -231,6 +230,50 @@ Namespace My.Resources
         Friend ReadOnly Property ExportSql() As String
             Get
                 Return ResourceManager.GetString("ExportSql", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to select [OLDACC] from
+        '''(
+        '''select &apos;Old Account Number (OLDACC):&apos; + trim([VALUE]) + &apos;  found more than once.&apos;  [OLDACC],sum(1) [BAD] from [dbo].[ARCUSO] [SO]
+        '''inner join [dbo].[ARCUS] [S] on [S].[IDCUST]=[SO].[IDCUST] and [S].[IDGRP]=&apos;UT&apos; and [S].[IDCUST]&lt;&gt;[S].[IDNATACCT] 
+        '''where [OPTFIELD]=&apos;OLDACC&apos; 
+        '''group by [VALUE]
+        ''') [B]
+        '''where [B].[BAD]&gt;1.
+        '''</summary>
+        Friend ReadOnly Property FindDuplicateOLDACC() As String
+            Get
+                Return ResourceManager.GetString("FindDuplicateOLDACC", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to select &apos;MONTH Opt field not found&apos; where &apos;MONTH&apos; not in 
+        '''(
+        '''SELECT OPTFIELD
+        '''  FROM [dbo].[CSOPTFH])
+        '''union
+        '''select &apos;YEAR Opt field not found&apos; where &apos;YEAR&apos; not in 
+        '''(
+        '''SELECT OPTFIELD
+        '''  FROM [dbo].[CSOPTFH])
+        '''union
+        '''
+        '''select &apos;BALANCE Opt field not found&apos; where &apos;BALANCE2&apos; not in 
+        '''(
+        '''SELECT OPTFIELD
+        '''  FROM [dbo].[CSOPTFH])
+        '''union
+        '''select &apos;PCINT Opt field not found&apos; where &apos;PCINT2&apos; not in 
+        '''(
+        '''SELECT OPTFIELD
+        '''  FROM [dbo].[CSOPTFH]).
+        '''</summary>
+        Friend ReadOnly Property FindMissingOptFields() As String
+            Get
+                Return ResourceManager.GetString("FindMissingOptFields", resourceCulture)
             End Get
         End Property
         
@@ -291,7 +334,7 @@ Namespace My.Resources
         '''select @year=&apos;{1}&apos;
         '''select @datemax=CAST(REPLACE(EOMONTH(@year+&apos;-&apos;+@month+&apos;-01&apos;),&apos;-&apos;,&apos;&apos;) AS DECIMAL(9,0)) 
         '''
-        '''select * from
+        '''select [IDCUST],[BALANCE],@month [MONTH],@year [YEAR]  from
         '''(
         '''select [AR].[IDCUST]
         ''',[BL].[Balance] 
@@ -302,10 +345,10 @@ Namespace My.Resources
         '''	  FROM [dbo].[AROBL]
         '''	  where 
         '''	  [DATEINVC]&lt;@datemax
-        '''	  and IDGRP =&apos;UT&apos; 
+        '''	   
         '''	  group by [IDCUST]
         '''	 ) [BL]
-        '''	 on [BL].[IDCUST]=[AR].[IDCUST] an [rest of string was truncated]&quot;;.
+        '''	 on [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property GetOtherPenalty() As String
             Get
@@ -333,6 +376,7 @@ Namespace My.Resources
         
         '''<summary>
         '''  Looks up a localized string similar to declare @datemax as decimal
+        '''declare @datemin as decimal
         '''--  Delete all records
         '''delete from  [MNP].[dbo].[METERED];
         '''--delete from  [MNP].[dbo].[METEREDBAD];
@@ -354,10 +398,8 @@ Namespace My.Resources
         '''	update [M]
         '''	set
         '''		[M].IDCUST=[SO].[IDCUST]
-        '''	From [MNP].[dbo].[METERED] [M]
-        '''	inner join [dbo].[ARCUSO] [SO] on [SO].OPTFIELD=&apos;OLDACC&apos; and [SO].[VALUE]=[M].[OLDACC];
-        '''
-        '''	--  [rest of string was truncated]&quot;;.
+        '''	From [MNP].[dbo].[METERED] [M] 
+        '''	inner join [dbo].[ARCUSO] [SO] on [SO].OPTFIELD=&apos;OLDACC&apos; and [SO] [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property InsertIntoMetered() As String
             Get
@@ -367,6 +409,7 @@ Namespace My.Resources
         
         '''<summary>
         '''  Looks up a localized string similar to declare @datemax as decimal
+        '''declare @datemin as decimal
         '''
         '''--  Delete all records
         '''delete from  [MNP].[dbo].[TRUCKED];
@@ -389,9 +432,7 @@ Namespace My.Resources
         '''	set
         '''		[M].IDCUST=[SO].[IDCUST]
         '''	From [MNP].[dbo].[TRUCKED] [M]
-        '''	inner join [dbo].[ARCUSO] [SO] on [SO].OPTFIELD=&apos;OLDACC&apos; and [SO].[VALUE]=[M].[OLDACC];
-        '''
-        '''	-- Updat [rest of string was truncated]&quot;;.
+        '''	inner join [dbo].[ARCUSO] [SO] on [SO].OPTFIELD=&apos;OLDACC&apos; and [SO].[VALU [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property InsertIntoTrucked() As String
             Get

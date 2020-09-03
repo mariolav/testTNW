@@ -117,6 +117,7 @@ Partial Class FrmMain
         Me.BtnPenaltyInvoices.TabIndex = 8
         Me.BtnPenaltyInvoices.Text = "Create Penalty Invoices"
         Me.BtnPenaltyInvoices.UseVisualStyleBackColor = True
+        Me.BtnPenaltyInvoices.Visible = False
         '
         'FrmMain
         '

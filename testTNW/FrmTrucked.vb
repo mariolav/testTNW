@@ -37,8 +37,19 @@ Public Class FrmTrucked
         Dim LsCheck As String = FnCheckAll("TRUCKED")
         If LsCheck <> "" Then
             MsgBox(LsCheck & "Please fix!!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, psTitle)
-            ' Exit Sub
+            Exit Sub
         End If
+        LsCheck = getValueFromSQL(My.Resources.FindDuplicateOLDACC)
+        If LsCheck <> "" Then
+            MsgBox(LsCheck & vbCrLf & "Please fix!!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, psTitle)
+            Exit Sub
+        End If
+        LsCheck = getValueFromSQL(My.Resources.FindMissingOptFields)
+        If LsCheck <> "" Then
+            MsgBox(LsCheck & vbCrLf & "Please fix!!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, psTitle)
+            Exit Sub
+        End If
+
         If TxtFileTrucked.Text = "" Then
             MsgBox("Please select file first", MsgBoxStyle.OkOnly Or MsgBoxStyle.Critical, psTitle)
             Exit Sub

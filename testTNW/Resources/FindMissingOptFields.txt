@@ -1,0 +1,20 @@
+select 'MONTH Opt field not found' where 'MONTH' not in 
+(
+SELECT OPTFIELD
+  FROM [dbo].[CSOPTFH])
+union
+select 'YEAR Opt field not found' where 'YEAR' not in 
+(
+SELECT OPTFIELD
+  FROM [dbo].[CSOPTFH])
+union
+
+select 'BALANCE Opt field not found' where 'BALANCE' not in 
+(
+SELECT OPTFIELD
+  FROM [dbo].[CSOPTFH])
+union
+select 'PCINT Opt field not found' where 'PCINT' not in 
+(
+SELECT OPTFIELD
+  FROM [dbo].[CSOPTFH])
